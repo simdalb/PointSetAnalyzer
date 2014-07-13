@@ -18,14 +18,15 @@ public:
    enum EFindStatus
    {
       POINTS_FOUND = 1,
-      POINTS_NOT_FOUND
+      POINTS_NOT_FOUND,
+      INTERNAL_ERROR_FINDING
    };
 
    enum EFileHandlingStatus
    {
       FILE_WRITE_OK = 1,
       FILE_WRITE_NOT_OK,
-      INTERNAL_ERROR
+      INTERNAL_ERROR_WRITING
    };
 
 public:

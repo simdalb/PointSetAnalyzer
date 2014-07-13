@@ -17,8 +17,8 @@ class COuterPerimeterFinder
 : public IOuterPerimeterFinder
 {
 public:
-   COuterPerimeterFinder(const PointSet&     pointSet,
-                         const IPoint<int>*& pMaxPoint);
+   COuterPerimeterFinder(const PointSet& pointSet,
+                         const Point*&   pMaxPoint);
 
    virtual ~COuterPerimeterFinder();
 
@@ -32,18 +32,36 @@ private:
    class CLargestxThenSmallesty
    {
    public:
-      const bool operator()(IPoint<int>* pPoint1, IPoint<int>* pPoint2);
+      const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
    class CPointsBelowIny
    {
    public:
-      const bool operator()(IPoint<int>* pPoint1, IPoint<int>* pPoint2);
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   };
+
+   class CLeastdYOverdX
+   {
+   public:
+      CLeastdYOverdX(const Point* pPoint);
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   private:
+      const int sgn(const int val);
+   private:
+      const Point* mpPoint;
+   };
+
+   class CLargestyThenLargestx
+   {
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
 private:
-   const PointSet&     mPointSet;
-   const IPoint<int>*& mpMaxPoint;
+   const PointSet& mPointSet;
+   const Point*&   mpMaxPoint;
    PointSet            mOuterPerimterPointSet;
 };
 

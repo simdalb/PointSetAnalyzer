@@ -28,7 +28,7 @@ CPointSetAnalyzerFacade::~CPointSetAnalyzerFacade()
    }
 }
 
-void CPointSetAnalyzerFacade::setPointSet(const PointSet& pointSet, const IPoint<int>* pMaxPoint)
+void CPointSetAnalyzerFacade::setPointSet(const PointSet& pointSet, const Point* pMaxPoint)
 {
    mPointSet = pointSet;
    mpMaxPoint = pMaxPoint;

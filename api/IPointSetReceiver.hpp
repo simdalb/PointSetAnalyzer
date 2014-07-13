@@ -14,7 +14,7 @@ public:
    virtual ~IPointSetReceiver() {}
 
 public:
-   virtual void setPointSet(const PointSet& pointSet, const IPoint<int>* maxPoint) = 0;
+   virtual void setPointSet(const PointSet& pointSet, const Point* maxPoint) = 0;
 };
 
 } // namespace pointSetAnalyzer

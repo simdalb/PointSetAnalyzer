@@ -14,11 +14,11 @@ $(LIBRARY): $(OBJECTS)
 	ar rvs libpointSetAnalyzer.a $(OBJECTS)
 
 clean:
+	rm -f $(LIBRARY)
+	rm -f *.bak
 	@for obj in $(OBJECTS); do \
-		echo "Removing $$obj"; \
 		rm -f $$obj; \
 	done
-	rm -f $(LIBRARY)
 
 depend:
 	makedepend $(SOURCES)

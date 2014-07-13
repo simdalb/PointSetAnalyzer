@@ -27,12 +27,12 @@ public:
 
 // IPointSetReceiver
 public:
-   virtual void setPointSet(const PointSet& pointSet, const IPoint<int>* pMaxPoint);
+   virtual void setPointSet(const PointSet& pointSet, const Point* pMaxPoint);
 
 private:
    CPointSetFileInput    mPointSetFileInput;
    PointSet              mPointSet;
-   const IPoint<int>*    mpMaxPoint;
+   const Point*          mpMaxPoint;
    COuterPerimeterFinder mOuterPerimeterFinder;
 };
 

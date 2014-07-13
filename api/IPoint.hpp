@@ -20,6 +20,8 @@ public:
    virtual const T& getY() const = 0;
 };
 
+typedef IPoint<int> Point;
+
 typedef std::vector<IPoint<int>*> PointSet;
 
 } // namespace pointSetAnalyzer

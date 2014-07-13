@@ -3,34 +3,30 @@ include ./makefile.inc
 
 SUBDIRS := src/private
 LIBRARY := pointSetAnalyzer
-
 SOURCES := main.cpp
-
-OBJECTS = main.o
+OBJECTS := main.o
 
 $(OBJECTS): $(SOURCES)
 	$(CC) -c $(SOURCES) $(CFLAGS)
-	
-$(LIBRARY):
-	@for subdir in $(SUBDIRS); do \
-		echo "Making all in $$subdir"; \
-		$(MAKE) -C $$subdir all; \
-	done
 
 all: $(OBJECTS) $(LIBRARY)
+	@for subdir in $(SUBDIRS); do \
+		cd $$subdir && $(MAKE) all; \
+	done
 	$(CC) -o points.exe $(OBJECTS) -L$(SUBDIRS) -l$(LIBRARY) $(CFLAGS)
 
 clean:
 	rm -f $(OBJECTS)
+	rm -f *.bak
+	rm -f *.stackdump
+	rm -f main.o
 	@for subdir in $(SUBDIRS); do \
-		echo "Cleaning up in $$subdir"; \
 		cd $$subdir && $(MAKE) clean; \
 	done
 
 depend:
 	makedepend $(SOURCES)
 	@for subdir in $(SUBDIRS); do \
-		echo "Making dependencies in $$subdir"; \
 		cd $$subdir && $(MAKE) depend; \
 	done
 
