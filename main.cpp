@@ -16,7 +16,7 @@ int main()
    }
    else
    {
-      std::cout << "Outer perimeter points found." << std::endl;
+      std::cout << "Input file read." << std::endl;
    }
 
    pointSetAnalyzer::IOuterPerimeterFinder& outerPerimeterFinder = pointSetAnalyzerFacade.getOuterPerimeterFinder();

@@ -9,7 +9,6 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
-#include <sstream>
 
 namespace pointSetAnalyzer {
 
@@ -29,40 +28,74 @@ public:
    virtual EFileHandlingStatus writeFoundPointsToFile(const std::string& filename);
 
 private:
-   class CLargestxThenSmallesty
+   template<typename DirectionalComparator, typename AngularComparator>
+   void calculateQuadrant(PointSet& pointSet, PointSet::iterator& itOuterPerimeterPoint);
+
+private:
+   class CSign
+   {
+   public:
+      const int operator()(const int val);
+   };
+
+private:
+   class CComparatorXLeft
    {
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
-   class CPointsBelowIny
+   class CComparatorYDown
    {
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
-   class CLeastdYOverdX
-   {
-   public:
-      CLeastdYOverdX(const Point* pPoint);
-   public:
-      const bool operator()(Point* pPoint1, Point* pPoint2);
-   private:
-      const int sgn(const int val);
-   private:
-      const Point* mpPoint;
-   };
-
-   class CLargestyThenLargestx
+   class CComparatorYUp
    {
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
 private:
+   class CComparatorBottomRight
+   {
+   public:
+      CComparatorBottomRight(const Point* pPoint);
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   private:
+      const Point* mpPoint;
+      CSign        mSign;
+   };
+
+private:
+   class CComparatorTopLeft
+   {
+   public:
+      CComparatorTopLeft(const Point* pPoint);
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   private:
+      const Point* mpPoint;
+      CSign        mSign;
+   };
+
+   class CComparatorBottomLeft
+   {
+   public:
+      CComparatorBottomLeft(const Point* pPoint);
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   private:
+      const Point* mpPoint;
+      CSign        mSign;
+   };
+
+private:
    const PointSet& mPointSet;
    const Point*&   mpMaxPoint;
-   PointSet            mOuterPerimterPointSet;
+   PointSet        mOuterPerimterPointSet;
 };
 
 } // namespace pointSetAnalyzer

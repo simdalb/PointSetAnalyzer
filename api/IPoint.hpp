@@ -22,7 +22,7 @@ public:
 
 typedef IPoint<int> Point;
 
-typedef std::vector<IPoint<int>*> PointSet;
+typedef std::vector<Point*> PointSet;
 
 } // namespace pointSetAnalyzer
 
