@@ -13,8 +13,6 @@ COuterPerimeterFinder::COuterPerimeterFinder(const PointSet& pointSet,
 COuterPerimeterFinder::~COuterPerimeterFinder()
 {}
 
-bool myfunction (int i,int j) { return (i<j); }
-
 COuterPerimeterFinder::EFindStatus COuterPerimeterFinder::findPoints()
 {
    EFindStatus findStatus = POINTS_NOT_FOUND;
@@ -27,20 +25,15 @@ COuterPerimeterFinder::EFindStatus COuterPerimeterFinder::findPoints()
    {
       PointSet pointSet = mPointSet;
 
-
-      PointSet::const_iterator itPointSet = pointSet.begin();
-      for(; itPointSet != pointSet.end(); itPointSet++)
-      {
-         std::cout << "a(" << (*itPointSet)->getX() << ", " << (*itPointSet)->getY() << ")" << std::endl;
-      }
-
       // The first outer perimeter point is the point with the largest x.
       // For multiple largest x points with the same x, get the one with largest y.
       PointSet::iterator itOuterPerimeterPoint = std::max_element(pointSet.begin(), pointSet.end(), CComparatorXLeft());
 
-      calculateQuadrant<CComparatorYDown, CComparatorBottomRight>(pointSet, itOuterPerimeterPoint);
-      calculateQuadrant<CComparatorXLeft, CComparatorBottomLeft>(pointSet, itOuterPerimeterPoint);
-      //calculateQuadrant<CComparatorYUp, CComparatorTopLeft>(pointSet, itOuterPerimeterPoint);
+      // Get outer points for each quadrant in clockwise fashion, lower left quadrant first
+      calculateQuadrant<CComparatorYDown, CComparatorLowerRight>(pointSet, itOuterPerimeterPoint);
+      calculateQuadrant<CComparatorXLeft, CComparatorLowerLeft>(pointSet, itOuterPerimeterPoint);
+      calculateQuadrant<CComparatorYUp, CComparatorLowerRight>(pointSet, itOuterPerimeterPoint);
+      calculateQuadrant<CComparatorXRight, CComparatorLowerLeft>(pointSet, itOuterPerimeterPoint);
 
       findStatus = POINTS_FOUND;
    }
@@ -51,34 +44,20 @@ COuterPerimeterFinder::EFindStatus COuterPerimeterFinder::findPoints()
 template<typename DirectionalComparator, typename AngularComparator>
 void COuterPerimeterFinder::calculateQuadrant(PointSet& pointSet, PointSet::iterator& itOuterPerimeterPoint)
 {
+   // Comments apply to the lower left quadrant as an illustration.
    // get point set underneath (i.e. below or at the y-level of) the first outer perimeter point,
    // sorted as increasing y (equal y points sorted as decreasing x)
    Point* pOuterPerimeterPoint = *itOuterPerimeterPoint;
 
-   std::cout << "Sorting around point: (" << (*itOuterPerimeterPoint)->getX() << ", " << (*itOuterPerimeterPoint)->getY() << ")" << std::endl;
    std::sort(pointSet.begin(), pointSet.end(), DirectionalComparator());
 
-   // get back the iterator for the current outer perimeter point (iterator to it was invalidated by partial_sort)
+   // get back the iterator for the current outer perimeter point (iterator to it was invalidated by sort)
    itOuterPerimeterPoint = std::find(pointSet.begin(), pointSet.end(), pOuterPerimeterPoint);
-
-   PointSet::const_iterator itPointSet = pointSet.begin();
-   for(; itPointSet != itOuterPerimeterPoint; itPointSet++)
-   {
-      std::cout << "a(" << (*itPointSet)->getX() << ", " << (*itPointSet)->getY() << ")" << std::endl;
-   }
-   for(; itPointSet != pointSet.end(); itPointSet++)
-   {
-      std::cout << "b(" << (*itPointSet)->getX() << ", " << (*itPointSet)->getY() << ")" << std::endl;
-   }
-
-   std::cout << "Starting point: (" << (*itOuterPerimeterPoint)->getX() << ", " << (*itOuterPerimeterPoint)->getY() << ")" << std::endl;
 
    while(true)
    {
-      // get next outer perimeter point. Search only the point set underneath
+      // search for the next outer perimeter point underneath the current outer point
       itOuterPerimeterPoint = std::max_element(pointSet.begin(), itOuterPerimeterPoint, AngularComparator(*itOuterPerimeterPoint));
-
-      std::cout << "Next point: (" << (*itOuterPerimeterPoint)->getX() << ", " << (*itOuterPerimeterPoint)->getY() << ")" << std::endl;
 
       mOuterPerimterPointSet.push_back(*itOuterPerimeterPoint);
 
@@ -101,8 +80,7 @@ IOuterPerimeterFinder::EFileHandlingStatus COuterPerimeterFinder::writeFoundPoin
       {
          int maxX = mpMaxPoint->getX();
          int maxY = mpMaxPoint->getY();
-         CComparatorYUp comparatorYUp;
-         std::sort(mOuterPerimterPointSet.begin(), mOuterPerimterPointSet.end(), comparatorYUp);
+         std::sort(mOuterPerimterPointSet.begin(), mOuterPerimterPointSet.end(), CComparatorYUpPlot());
          PointSet::const_iterator itOuterPerimterPointSet = mOuterPerimterPointSet.begin();
          for(int i = 1; i <= maxY; i++)
          {
@@ -140,6 +118,19 @@ IOuterPerimeterFinder::EFileHandlingStatus COuterPerimeterFinder::writeFoundPoin
    return fileHandlingStatus;
 }
 
+const bool COuterPerimeterFinder::CComparatorYUpPlot::operator()(Point* pPoint1, Point* pPoint2)
+{
+   if(pPoint1 && pPoint2)
+   {
+      if(pPoint1->getY() == pPoint2->getY())
+      {
+         return pPoint1->getX() < pPoint2->getX();
+      }
+      return pPoint1->getY() < pPoint2->getY();
+   }
+   return false;
+}
+
 const bool COuterPerimeterFinder::CComparatorXLeft::operator()(Point* pPoint1, Point* pPoint2)
 {
    if(pPoint1 && pPoint2)
@@ -153,6 +144,23 @@ const bool COuterPerimeterFinder::CComparatorXLeft::operator()(Point* pPoint1, P
          return pPoint1->getY() < pPoint2->getY();
       }
       return pPoint1->getX() < pPoint2->getX();
+   }
+   return false;
+}
+
+const bool COuterPerimeterFinder::CComparatorXRight::operator()(Point* pPoint1, Point* pPoint2)
+{
+   if(pPoint1 && pPoint2)
+   {
+      if(pPoint1 == pPoint2)
+      {
+         return false;
+      }
+      if(pPoint1->getX() == pPoint2->getX())
+      {
+         return pPoint1->getY() > pPoint2->getY();
+      }
+      return pPoint1->getX() > pPoint2->getX();
    }
    return false;
 }
@@ -174,80 +182,19 @@ const bool COuterPerimeterFinder::CComparatorYDown::operator()(Point* pPoint1, P
    return false;
 }
 
-COuterPerimeterFinder::CComparatorBottomRight::CComparatorBottomRight(const Point* pPoint)
-: mpPoint(pPoint)
-, mSign()
-{}
-
-const bool COuterPerimeterFinder::CComparatorBottomRight::operator()(Point* pPoint1, Point* pPoint2)
+const bool COuterPerimeterFinder::CComparatorYUp::operator()(Point* pPoint1, Point* pPoint2)
 {
-   if(mpPoint && pPoint1 && pPoint2)
+   if(pPoint1 && pPoint2)
    {
-      int dx1 = pPoint1->getX() - mpPoint->getX();
-      int dx2 = pPoint2->getX() - mpPoint->getX();
-      int dy1 = pPoint1->getY() - mpPoint->getY();
-      int dy2 = pPoint2->getY() - mpPoint->getY();
-
-      int lhs = mSign(dx1) * dy1 * abs(dx2);
-      int rhs = mSign(dx2) * dy2 * abs(dx1);
-
-      if(lhs == rhs)
+      if(pPoint1 == pPoint2)
       {
-         return pPoint1->getY() >= pPoint2->getY();
+         return true;
       }
-      return lhs > rhs;
-   }
-   return false;
-}
-
-COuterPerimeterFinder::CComparatorTopLeft::CComparatorTopLeft(const Point* pPoint)
-: mpPoint(pPoint)
-, mSign()
-{}
-
-const bool COuterPerimeterFinder::CComparatorTopLeft::operator()(Point* pPoint1, Point* pPoint2)
-{
-   if(mpPoint && pPoint1 && pPoint2)
-   {
-      int dx1 = pPoint1->getX() - mpPoint->getX();
-      int dx2 = pPoint2->getX() - mpPoint->getX();
-      int dy1 = pPoint1->getY() - mpPoint->getY();
-      int dy2 = pPoint2->getY() - mpPoint->getY();
-
-      int lhs = mSign(dx1) * dy1 * abs(dx2);
-      int rhs = mSign(dx2) * dy2 * abs(dx1);
-
-      if(lhs == rhs)
+      if(pPoint1->getY() == pPoint2->getY())
       {
-         return pPoint1->getY() <= pPoint2->getY();
+         return pPoint1->getX() > pPoint2->getX();
       }
-      return lhs >= rhs;
-   }
-   return false;
-}
-
-COuterPerimeterFinder::CComparatorBottomLeft::CComparatorBottomLeft(const Point* pPoint)
-: mpPoint(pPoint)
-, mSign()
-{}
-
-const bool COuterPerimeterFinder::CComparatorBottomLeft::operator()(Point* pPoint1, Point* pPoint2)
-{
-   if(mpPoint && pPoint1 && pPoint2)
-   {
-      int dx1 = pPoint1->getX() - mpPoint->getX();
-      int dx2 = pPoint2->getX() - mpPoint->getX();
-      int dy1 = pPoint1->getY() - mpPoint->getY();
-      int dy2 = pPoint2->getY() - mpPoint->getY();
-
-      int lhs = mSign(dy1) * dx1 * abs(dy2);
-      int rhs = mSign(dy2) * dx2 * abs(dy1);
-
-      if(lhs == rhs)
-      {
-         return pPoint1->getX() <= pPoint2->getX();
-      }
-      return lhs < rhs;
+      return pPoint1->getY() < pPoint2->getY();
    }
    return false;
 }
@@ -265,15 +212,56 @@ const int COuterPerimeterFinder::CSign::operator()(const int val)
    return 0;
 }
 
-const bool COuterPerimeterFinder::CComparatorYUp::operator()(Point* pPoint1, Point* pPoint2)
+COuterPerimeterFinder::CComparatorLowerRight::CComparatorLowerRight(const Point* pPoint)
+: mpPoint(pPoint)
+, mSign()
+{}
+
+const bool COuterPerimeterFinder::CComparatorLowerRight::operator()(Point* pPoint1, Point* pPoint2)
 {
-   if(pPoint1 && pPoint2)
+   if(mpPoint && pPoint1 && pPoint2)
    {
-      if(pPoint1->getY() == pPoint2->getY())
+      // compare dy1/dx1 with dy2/dx2 to find largest angle
+      int dx1 = pPoint1->getX() - mpPoint->getX();
+      int dx2 = pPoint2->getX() - mpPoint->getX();
+      int dy1 = pPoint1->getY() - mpPoint->getY();
+      int dy2 = pPoint2->getY() - mpPoint->getY();
+
+      int lhs = mSign(dx1) * dy1 * abs(dx2);
+      int rhs = mSign(dx2) * dy2 * abs(dx1);
+
+      if(lhs == rhs)
       {
-         return pPoint1->getX() < pPoint2->getX();
+         return pPoint1->getY() >= pPoint2->getY();
       }
-      return pPoint1->getY() < pPoint2->getY();
+      return lhs > rhs;
+   }
+   return false;
+}
+
+COuterPerimeterFinder::CComparatorLowerLeft::CComparatorLowerLeft(const Point* pPoint)
+: mpPoint(pPoint)
+, mSign()
+{}
+
+const bool COuterPerimeterFinder::CComparatorLowerLeft::operator()(Point* pPoint1, Point* pPoint2)
+{
+   if(mpPoint && pPoint1 && pPoint2)
+   {
+      // compare dx1/dy1 with dx2/dy2 to find largest angle
+      int dx1 = pPoint1->getX() - mpPoint->getX();
+      int dx2 = pPoint2->getX() - mpPoint->getX();
+      int dy1 = pPoint1->getY() - mpPoint->getY();
+      int dy2 = pPoint2->getY() - mpPoint->getY();
+
+      int lhs = mSign(dy1) * dx1 * abs(dy2);
+      int rhs = mSign(dy2) * dx2 * abs(dy1);
+
+      if(lhs == rhs)
+      {
+         return pPoint1->getX() <= pPoint2->getX();
+      }
+      return lhs < rhs;
    }
    return false;
 }

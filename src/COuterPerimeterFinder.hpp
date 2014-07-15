@@ -32,14 +32,20 @@ private:
    void calculateQuadrant(PointSet& pointSet, PointSet::iterator& itOuterPerimeterPoint);
 
 private:
-   class CSign
+   class CComparatorYUpPlot
    {
    public:
-      const int operator()(const int val);
+      const bool operator()(Point* pPoint1, Point* pPoint2);
    };
 
 private:
    class CComparatorXLeft
+   {
+   public:
+      const bool operator()(Point* pPoint1, Point* pPoint2);
+   };
+
+   class CComparatorXRight
    {
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
@@ -58,22 +64,17 @@ private:
    };
 
 private:
-   class CComparatorBottomRight
+   class CSign
    {
    public:
-      CComparatorBottomRight(const Point* pPoint);
-   public:
-      const bool operator()(Point* pPoint1, Point* pPoint2);
-   private:
-      const Point* mpPoint;
-      CSign        mSign;
+      const int operator()(const int val);
    };
 
 private:
-   class CComparatorTopLeft
+   class CComparatorLowerRight
    {
    public:
-      CComparatorTopLeft(const Point* pPoint);
+      CComparatorLowerRight(const Point* pPoint);
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
    private:
@@ -81,10 +82,10 @@ private:
       CSign        mSign;
    };
 
-   class CComparatorBottomLeft
+   class CComparatorLowerLeft
    {
    public:
-      CComparatorBottomLeft(const Point* pPoint);
+      CComparatorLowerLeft(const Point* pPoint);
    public:
       const bool operator()(Point* pPoint1, Point* pPoint2);
    private:
