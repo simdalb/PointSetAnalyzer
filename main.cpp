@@ -17,27 +17,25 @@ int main()
    else
    {
       std::cout << "Input file read." << std::endl;
-   }
-
-   pointSetAnalyzer::IOuterPerimeterFinder& outerPerimeterFinder = pointSetAnalyzerFacade.getOuterPerimeterFinder();
-   pointSetAnalyzer::IOuterPerimeterFinder::EFindStatus findStatus = outerPerimeterFinder.findPoints();
-   if(pointSetAnalyzer::IOuterPerimeterFinder::POINTS_FOUND != findStatus)
-   {
-      std::cerr << "Error: Status: " <<  findStatus << " while finding outer perimeter points." << std::endl;
-   }
-   else
-   {
-      std::cout << "Outer perimeter points found." << std::endl;
-   }
-
-   pointSetAnalyzer::IOuterPerimeterFinder::EFileHandlingStatus fileHandlingStatus = outerPerimeterFinder.writeFoundPointsToFile("myOuterPerimeterPoints.txt");
-   if(pointSetAnalyzer::IOuterPerimeterFinder::FILE_WRITE_OK != fileHandlingStatus)
-   {
-      std::cerr << "Error: Status: " <<  fileHandlingStatus << " while handling file." << std::endl;
-   }
-   else
-   {
-      std::cout << "Outer perimeter points written to file." << std::endl;
+      pointSetAnalyzer::IOuterPerimeterFinder& outerPerimeterFinder = pointSetAnalyzerFacade.getOuterPerimeterFinder();
+      pointSetAnalyzer::IOuterPerimeterFinder::EFindStatus findStatus = outerPerimeterFinder.findPoints();
+      if(pointSetAnalyzer::IOuterPerimeterFinder::POINTS_FOUND != findStatus)
+      {
+         std::cerr << "Error: Status: " <<  findStatus << " while finding outer perimeter points." << std::endl;
+      }
+      else
+      {
+         std::cout << "Outer perimeter points found." << std::endl;
+         pointSetAnalyzer::IOuterPerimeterFinder::EFileHandlingStatus fileHandlingStatus = outerPerimeterFinder.writeFoundPointsToFile("myOuterPerimeterPoints.txt");
+         if(pointSetAnalyzer::IOuterPerimeterFinder::FILE_WRITE_OK != fileHandlingStatus)
+         {
+            std::cerr << "Error: Status: " <<  fileHandlingStatus << " while handling file." << std::endl;
+         }
+         else
+         {
+            std::cout << "Outer perimeter points written to file." << std::endl;
+         }
+      }
    }
 }
 

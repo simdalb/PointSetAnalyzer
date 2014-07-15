@@ -50,7 +50,15 @@ IPointSetFileInput::EFileInputStatus CPointSetFileInput::setPointSetFromFile(con
             {
                isPreviousCharNewLine = true;
                isNewlineFound = true;
-               xMax = ix;
+               if(0 == xMax)
+               {
+                  xMax = ix;
+               }
+               else if(ix != xMax)
+               {
+                  fileInputStatus = BAD_FORMAT;
+                  break;
+               }
                ix = 0;
                iy++;
             }
