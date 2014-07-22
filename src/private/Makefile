@@ -11,7 +11,7 @@ $(OBJECTS): %.o: %.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(LIBRARY): $(OBJECTS)
-	ar rvs libpointSetAnalyzer.a $(OBJECTS)
+	ar rvs $(LIBRARY) $(OBJECTS)
 
 clean:
 	rm -f $(LIBRARY)

@@ -9,7 +9,7 @@ OBJECTS := main.o
 $(OBJECTS): $(SOURCES)
 	$(CC) -c $(SOURCES) $(CFLAGS)
 
-all: $(OBJECTS) $(LIBRARY)
+all: $(OBJECTS)
 	@for subdir in $(SUBDIRS); do \
 		cd $$subdir && $(MAKE) all; \
 	done

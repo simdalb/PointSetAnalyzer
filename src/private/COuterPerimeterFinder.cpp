@@ -17,8 +17,9 @@ COuterPerimeterFinder::EFindStatus COuterPerimeterFinder::findPoints()
 {
    EFindStatus findStatus = POINTS_NOT_FOUND;
 
-   if(mPointSet.empty())
+   if(mPointSet.size() < 4)
    {
+      mOuterPerimterPointSet = mPointSet;
       findStatus = POINTS_FOUND;
    }
    else
@@ -34,6 +35,8 @@ COuterPerimeterFinder::EFindStatus COuterPerimeterFinder::findPoints()
       calculateQuadrant<CComparatorXLeft, CComparatorLowerLeft>(pointSet, itOuterPerimeterPoint);
       calculateQuadrant<CComparatorYUp, CComparatorLowerRight>(pointSet, itOuterPerimeterPoint);
       calculateQuadrant<CComparatorXRight, CComparatorLowerLeft>(pointSet, itOuterPerimeterPoint);
+
+      mOuterPerimterPointSet.erase(std::unique(mOuterPerimterPointSet.begin(), mOuterPerimterPointSet.end()), mOuterPerimterPointSet.end());
 
       findStatus = POINTS_FOUND;
    }
@@ -60,6 +63,8 @@ void COuterPerimeterFinder::calculateQuadrant(PointSet& pointSet, PointSet::iter
       itOuterPerimeterPoint = std::max_element(pointSet.begin(), itOuterPerimeterPoint, AngularComparator(*itOuterPerimeterPoint));
 
       mOuterPerimterPointSet.push_back(*itOuterPerimeterPoint);
+
+      PointSet::const_iterator itPointSet = mOuterPerimterPointSet.begin();
 
       if(itOuterPerimeterPoint == pointSet.begin())
       {
